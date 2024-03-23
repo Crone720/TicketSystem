@@ -21,9 +21,9 @@ class CommandExecute(commands.Cog):
     @commands.slash_command(name="tickеt")
     @commands.cooldown(1, 180, commands.BucketType.user)
     @commands.has_role(IntSettings.SupportRole)
-    async def ticketban(self, interaction):
+    async def ticketmain(self, interaction):
         ...
-    @ticketban.sub_command(name="ban", description="Выдать Блокировку")
+    @ticketmain.sub_command(name="ban", description="Выдать Блокировку")
     async def ticketbansub(self, interaction: disnake.AppCommandInteraction, member: disnake.Member):
         async with aiosqlite.connect("system/ticket.db") as db:
             cursor = await db.cursor()
@@ -31,17 +31,13 @@ class CommandExecute(commands.Cog):
             await cursor.execute("SELECT * FROM bans WHERE userid=?", (member.id,))
             ban_entry = await cursor.fetchone()
             if ban_entry:
-                embedban = disnake.Embed(title="Управление Участниками (Обращения)", description=f"{member.mention} Уже находится в блокировке.")
+                embedban = disnake.Embed(title="Обращения", description=f"{member.mention} Уже находится в блокировке.")
                 await interaction.send(embed=embedban, ephemeral=True)
                 return
         await interaction.response.send_modal(modal=MyModal(member))
 
-    @commands.slash_command(name="tiсket")
-    @commands.cooldown(1, 180, commands.BucketType.user)
-    @commands.has_role(IntSettings.SupportRole)
-    async def ticketunban(self, interaction):
-        ...
-    @ticketban.sub_command(name="unban", description="Снять Блокировку")
+
+    @ticketmain.sub_command(name="unban", description="Снять Блокировку")
     async def ticketunbansub(self, interaction: disnake.AppCommandInteraction, member: disnake.Member):
         async with aiosqlite.connect("system/ticket.db") as db:
             cursor = await db.cursor()
